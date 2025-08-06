@@ -316,9 +316,8 @@ func main() {
 	// 下载整个目录
 	remoteDir := config.SaveDir
 	localDir := fmt.Sprintf("./Save/%s", now)
-	localDirPath := fmt.Sprintf("%s/%s", localDir, config.SaveDir) // 本地保存目录
 
-	err = downloadDirectory(client, remoteDir, localDirPath)
+	err = downloadDirectory(client, remoteDir, localDir)
 	if err != nil {
 		log.Fatalf("下载目录失败: %v", err)
 	}
@@ -346,6 +345,6 @@ func main() {
 	if err != nil {
 		log.Printf("删除原目录失败: %v", err)
 	} else {
-		log.Printf("原目录已删除: %s", localDirPath)
+		log.Printf("原目录已删除: %s", localDir)
 	}
 }
