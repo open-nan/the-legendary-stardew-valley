@@ -1,0 +1,48 @@
+name: 每日运行下载脚本
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天UTC时间0点运行（北京时间8点）
+  workflow_dispatch:  # 允许手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 运行SFTP下载脚本
+        run: |
+          chmod +x ./lib/back_save_liunx
+          ./lib/back_save_liunx
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          SAVE_DIR: ${{ secrets.SAVE_DIR }}
+      
+      - name: 更新到当前github仓库
+        run: |
+          # 配置Git用户信息
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          # 检查更改
+          git status
+          
+          # 添加所有更改
+          git add .
+          
+          # 提交更改
+          git commit -m "update_save: $(date +'%Y-%m-%d %H:%M:%S')"
+          
+          # 推送到远程仓库
+          git push origin main
+        env:
+          # 使用GitHub提供的令牌进行认证
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
